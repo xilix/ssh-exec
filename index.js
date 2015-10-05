@@ -63,7 +63,7 @@ var exec = function (cmd, opts) {
   }
 
   var run = function () {
-    client.exec(cmd, function (err, stdio) {
+    client.exec(cmd, {pty: true}, function (err, stdio) {
       if (err) return stream.destroy(err)
 
       stream.setWritable(stdio)
@@ -72,7 +72,9 @@ var exec = function (cmd, opts) {
       stream.emit('ready')
 
       stdio.stderr.setEncoding('utf-8')
-      stdio.stderr.on('data', function (data) {
+      stdio.on('data', function (data) {
+        stream.emit('warn', data)
+      }).stderr.on('data', function (data) {
         stream.emit('warn', data)
       })
 
